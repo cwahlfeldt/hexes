@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hexes - Interactive Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      overflow: hidden;
+    }
+
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+
+    #canvas {
+      flex: 1;
+      display: block;
+      cursor: pointer;
+    }
+
+    #sidebar {
+      width: 320px;
+      background: #16213e;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #0f3460;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #667eea;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.secondary {
+      background: #0f3460;
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .mode-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mode-buttons button {
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .mode-buttons button.active {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
+    }
+
+    .info {
+      background: rgba(15, 52, 96, 0.5);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .info-label {
+      color: #888;
+    }
+
+    .info-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .instructions {
+      background: rgba(102, 126, 234, 0.1);
+      border-left: 3px solid #667eea;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    .instructions strong {
+      color: #667eea;
+    }
+
+    .slider-control {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .slider-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(15, 52, 96, 0.5);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    input[type="range"]:hover::-webkit-slider-thumb {
+      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.6);
+    }
+
+    input[type="range"]:hover::-moz-range-thumb {
+      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <canvas id="canvas"></canvas>
+    <div id="sidebar">
+      <h1>Hexes</h1>
+      <div class="subtitle">Interactive Hex Grid Library Demo</div>
+
+      <div class="section">
+        <div class="section-title">Grid Shape</div>
+        <div class="mode-buttons">
+          <button id="shape-rectangle" class="active">Rectangle</button>
+          <button id="shape-hexagon">Hexagon</button>
+          <button id="shape-triangle">Triangle</button>
+          <button id="shape-diamond">Diamond</button>
+          <button id="shape-trapezoid">Trapezoid</button>
+          <button id="shape-parallelogram">Parallelogram</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Grid Size</div>
+        <div class="slider-control">
+          <div class="slider-label">
+            <span>Size</span>
+            <span class="slider-value" id="size-value">8</span>
+          </div>
+          <input type="range" id="grid-size-slider" min="3" max="15" value="8" step="1">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Layout</div>
+        <div class="mode-buttons">
+          <button id="layout-pointy" class="active">Pointy Top</button>
+          <button id="layout-flat">Flat Top</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Mode</div>
+        <div class="mode-buttons">
+          <button id="mode-obstacle" class="active">Obstacles</button>
+          <button id="mode-path">Pathfinding</button>
+          <button id="mode-range">Range</button>
+          <button id="mode-los">Line of Sight</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Instructions</div>
+        <div class="instructions" id="instructions">
+          <strong>Click</strong> on hexes to toggle obstacles. Walls block pathfinding.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Actions</div>
+        <div class="controls">
+          <button id="clear-obstacles" class="secondary">Clear Obstacles</button>
+          <button id="random-obstacles">Random Obstacles</button>
+          <button id="clear-all" class="danger">Reset Grid</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Grid Info</div>
+        <div class="info">
+          <div class="info-item">
+            <span class="info-label">Grid Size:</span>
+            <span class="info-value" id="grid-size">15 × 10</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Total Cells:</span>
+            <span class="info-value" id="total-cells">150</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Obstacles:</span>
+            <span class="info-value" id="obstacle-count">0</span>
+          </div>
+          <div class="info-item" id="path-info" style="display: none;">
+            <span class="info-label">Path Length:</span>
+            <span class="info-value" id="path-length">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Legend</div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #2d4059;"></div>
+            <span>Empty Cell</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #ea5455;"></div>
+            <span>Obstacle</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #4facfe;"></div>
+            <span>Path / Selected</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: rgba(102, 126, 234, 0.3);"></div>
+            <span>Range / Visible</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #f093fb;"></div>
+            <span>Start Point</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #feca57;"></div>
+            <span>End Point</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>

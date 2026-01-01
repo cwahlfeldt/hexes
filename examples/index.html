@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module">
+      import {
+        createHexGrid,
+        setPassable,
+        setCell,
+        setCellData,
+        findPath,
+        getNeighbors,
+      } from "../src/index.js";
+
+      let grid = createHexGrid(1, { layout: "flat" });
+
+      const units = {
+        player: {
+          id: "player",
+          health: 3,
+          coord: { x: 0, y: 0, z: 0 },
+        },
+        enemy: {
+          id: "enemy",
+          health: 1,
+          coord: { x: 1, y: 0, z: -1 },
+        },
+      };
+
+      grid = setCellData(grid, units.player.coord, {
+        [units.player.id]: units.player,
+      });
+
+      function move(grid, unit, destination) {
+        const unitCoord = unit.coord;
+        const removedUnitGrid = setCellData(grid, unitCoord, {});
+
+        return setCellData(removedUnitGrid, destination, {
+          [unit.id]: {
+            ...unit,
+            coord: destination,
+          },
+        });
+      }
+
+      grid = move(grid, units.player, { x: 1, y: 0, z: -1 });
+      grid = move(grid, units.player, { x: -1, y: 0, z: 1 });
+
+      console.log(grid);
+
+      const gridForDisplay = {
+        ...grid,
+        cells: Array.from(grid.cells.entries()),
+      };
+      document.getElementById("code").innerHTML = JSON.stringify(
+        gridForDisplay,
+        null,
+        2
+      );
+    </script>
+  </head>
+  <body>
+    <pre><code id="code"></code></pre>
+  </body>
+</html>
