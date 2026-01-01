@@ -146,6 +146,30 @@ export function setCellData(grid, coord, ...entities) {
   return setCell(grid, coord, { ...cell, data: newData });
 }
 
+// Remove entities from a cell's data by their id (immutable)
+export function removeCellData(grid, coord, ...entities) {
+  const cell = getCell(grid, coord);
+
+  if (!cell) return grid;
+
+  if (entities.length === 0) {
+    console.warn("removeCellData: no entities provided");
+    return grid;
+  }
+
+  const newData = { ...cell.data };
+
+  for (const entity of entities) {
+    // Accept either an entity object with id, or just the id string
+    const id = typeof entity === "string" ? entity : entity?.id;
+    if (id && id in newData) {
+      delete newData[id];
+    }
+  }
+
+  return setCell(grid, coord, { ...cell, data: newData });
+}
+
 // Remove a cell from the grid (immutable)
 export function removeCell(grid, coord) {
   const newCells = new Map(grid.cells);

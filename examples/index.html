@@ -14,6 +14,7 @@
         setCellData,
         query,
         createEntities,
+        removeCellData,
       } from "../src/index.js";
 
       let grid = createHexGrid(1, { layout: "flat" });
@@ -55,7 +56,18 @@
         }
       });
 
-      console.log(enemyEnt);
+      function move(grid, ent, destination) {
+        const [cell, entity] = query(grid, "id").filter(
+          (e) => e[1].id === ent.id
+        )[0];
+        const unitCoord = cell.coord;
+        const removedUnitGrid = removeCellData(grid, unitCoord, entity);
+
+        return setCellData(removedUnitGrid, destination, entity);
+      }
+
+      grid = move(grid, player, { x: 0, y: -1, z: 1 });
+      grid = move(grid, enemy2, { x: 0, y: 0, z: 0 });
 
       const gridForDisplay = {
         ...grid,

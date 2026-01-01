@@ -8,6 +8,7 @@ export {
   getCell,
   setCell,
   setCellData,
+  removeCellData,
   updateCell,
   removeCell,
   setPassable,
