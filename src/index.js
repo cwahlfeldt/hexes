@@ -1,10 +1,8 @@
 // Public API exports for Hexes library
 
 // Grid creation and management
-export {
+import {
   createGrid,
-  createHexGrid,
-  createCustomGrid,
   getCell,
   setCell,
   setCellData,
@@ -21,7 +19,7 @@ export {
 } from "./grid.js";
 
 // Coordinate utilities
-export {
+import {
   add,
   subtract,
   scale,
@@ -40,7 +38,7 @@ export {
 } from "./coord.js";
 
 // Neighbor and range queries
-export {
+import {
   getNeighbors,
   getRange,
   getRing,
@@ -49,13 +47,125 @@ export {
 } from "./neighbors.js";
 
 // Line drawing and line of sight
-export { getLine, hasLineOfSight, getVisibleCells } from "./line.js";
+import { getLine, hasLineOfSight, getVisibleCells } from "./line.js";
 
 // Pathfinding
-export { findPath, getPathCost, getPathLength } from "./pathfinding.js";
+import { findPath, getPathCost, getPathLength } from "./pathfinding.js";
 
 // Entity queries
-export { query, hasComponents } from "./query.js";
+import { query, hasComponents } from "./query.js";
 
 // Entity system
-export { createEntity, resetIds } from "./entities.js";
+import { createEntity, resetIds } from "./entities.js";
+
+// Named exports (for tree-shaking)
+export {
+  // Grid
+  createGrid,
+  getCell,
+  setCell,
+  setCellData,
+  removeCellData,
+  updateCell,
+  removeCell,
+  setPassable,
+  isPassable,
+  getObstacles,
+  mapCells,
+  filterCells,
+  forEachCell,
+  hasCell,
+  // Coordinates
+  add,
+  subtract,
+  scale,
+  neighbor,
+  getDirections,
+  equals,
+  hash,
+  unhash,
+  distance,
+  lerp,
+  round,
+  cubeToPixel,
+  pixelToCube,
+  cubeToOffset,
+  offsetToCube,
+  // Neighbors
+  getNeighbors,
+  getRange,
+  getRing,
+  getSpiral,
+  getReachable,
+  // Line of sight
+  getLine,
+  hasLineOfSight,
+  getVisibleCells,
+  // Pathfinding
+  findPath,
+  getPathCost,
+  getPathLength,
+  // Query
+  query,
+  hasComponents,
+  // Entities
+  createEntity,
+  resetIds,
+};
+
+// Default export with all functions
+const Hexes = {
+  // Grid
+  createGrid,
+  getCell,
+  setCell,
+  setCellData,
+  removeCellData,
+  updateCell,
+  removeCell,
+  setPassable,
+  isPassable,
+  getObstacles,
+  mapCells,
+  filterCells,
+  forEachCell,
+  hasCell,
+  // Coordinates
+  add,
+  subtract,
+  scale,
+  neighbor,
+  getDirections,
+  equals,
+  hash,
+  unhash,
+  distance,
+  lerp,
+  round,
+  cubeToPixel,
+  pixelToCube,
+  cubeToOffset,
+  offsetToCube,
+  // Neighbors
+  getNeighbors,
+  getRange,
+  getRing,
+  getSpiral,
+  getReachable,
+  // Line of sight
+  getLine,
+  hasLineOfSight,
+  getVisibleCells,
+  // Pathfinding
+  findPath,
+  getPathCost,
+  getPathLength,
+  // Query
+  query,
+  hasComponents,
+  // Entities
+  createEntity,
+  resetIds,
+};
+
+export default Hexes;

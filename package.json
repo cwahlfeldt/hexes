@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A functional, immutable hex grid library in pure JavaScript with built-in pathfinding",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

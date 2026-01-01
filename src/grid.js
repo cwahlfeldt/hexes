@@ -1,33 +1,87 @@
 import { hash, unhash, offsetToCube } from "./coord.js";
 
-// Create a rectangular grid
-export function createGrid(width, height, options = {}) {
-  const { layout = "pointy", defaultData = {} } = options;
+/**
+ * Create a hex grid with different shapes based on options.
+ *
+ * @param {Object} options - Grid configuration
+ * @param {string} [options.type='hex'] - Grid type: 'hex' (hexagon), 'rectangle', or 'custom'
+ * @param {string} [options.layout='pointy'] - Hex orientation: 'pointy' or 'flat'
+ * @param {Object} [options.defaultData={}] - Default data for each cell
+ *
+ * For type 'hex':
+ * @param {number} options.radius - Radius of the hexagon grid
+ *
+ * For type 'rectangle':
+ * @param {number} options.width - Width of the grid
+ * @param {number} options.height - Height of the grid
+ *
+ * For type 'custom':
+ * @param {Function} options.predicate - Function(coord) => boolean to determine if cell is included
+ * @param {Object} options.bounds - { minX, maxX, minY, maxY } bounds to iterate over
+ */
+export function createGrid(options = {}) {
+  const {
+    type = "hex",
+    layout = "pointy",
+    defaultData = {},
+  } = options;
+
   const cells = new Map();
 
-  for (let row = 0; row < height; row++) {
-    for (let col = 0; col < width; col++) {
-      const coord = offsetToCube({ col, row }, layout);
-      const key = hash(coord);
-      cells.set(key, {
-        coord,
-        passable: true,
-        data: { ...defaultData },
-      });
+  const createCell = (coord) => ({
+    coord,
+    passable: true,
+    data: { ...defaultData },
+  });
+
+  if (type === "rectangle") {
+    const { width, height } = options;
+
+    if (width === undefined || height === undefined) {
+      throw new Error("createGrid: 'rectangle' type requires width and height");
     }
+
+    for (let row = 0; row < height; row++) {
+      for (let col = 0; col < width; col++) {
+        const coord = offsetToCube({ col, row }, layout);
+        const key = hash(coord);
+        cells.set(key, createCell(coord));
+      }
+    }
+
+    return { cells, layout, size: { width, height } };
   }
 
-  return {
-    cells,
-    layout,
-    size: { width, height },
-  };
-}
+  if (type === "custom") {
+    const { predicate, bounds } = options;
 
-// Create a hexagon-shaped grid
-export function createHexGrid(radius, options = {}) {
-  const { layout = "pointy", defaultData = {} } = options;
-  const cells = new Map();
+    if (!predicate || !bounds) {
+      throw new Error("createGrid: 'custom' type requires predicate and bounds");
+    }
+
+    const { minX, maxX, minY, maxY } = bounds;
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const z = -x - y;
+        const coord = { x, y, z };
+
+        if (predicate(coord)) {
+          const key = hash(coord);
+          cells.set(key, createCell(coord));
+        }
+      }
+    }
+
+    return { cells, layout, size: bounds };
+  }
+
+  // Default: type === 'hex'
+  const { radius } = options;
+
+  if (radius === undefined) {
+    throw new Error("createGrid: 'hex' type requires radius");
+  }
 
   for (let x = -radius; x <= radius; x++) {
     for (
@@ -38,49 +92,11 @@ export function createHexGrid(radius, options = {}) {
       const z = -x - y;
       const coord = { x, y, z };
       const key = hash(coord);
-      cells.set(key, {
-        coord,
-        passable: true,
-        data: { ...defaultData },
-      });
+      cells.set(key, createCell(coord));
     }
   }
 
-  return {
-    cells,
-    layout,
-    size: { radius },
-  };
-}
-
-// Create a custom-shaped grid using a predicate function
-export function createCustomGrid(predicate, bounds, options = {}) {
-  const { layout = "pointy", defaultData = {} } = options;
-  const cells = new Map();
-
-  const { minX, maxX, minY, maxY } = bounds;
-
-  for (let x = minX; x <= maxX; x++) {
-    for (let y = minY; y <= maxY; y++) {
-      const z = -x - y;
-      const coord = { x, y, z };
-
-      if (predicate(coord)) {
-        const key = hash(coord);
-        cells.set(key, {
-          coord,
-          passable: true,
-          data: { ...defaultData },
-        });
-      }
-    }
-  }
-
-  return {
-    cells,
-    layout,
-    size: bounds,
-  };
+  return { cells, layout, size: { radius } };
 }
 
 // Get a cell at a coordinate

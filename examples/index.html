@@ -5,48 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script type="module">
-      import {
-        createHexGrid,
-        setPassable,
-        setCell,
-        findPath,
-        getNeighbors,
-        setCellData,
-        query,
-        createEntity,
-        removeCellData,
-      } from "../src/index.js";
+      import Hexes from "../src/index.js";
 
-      let grid = createHexGrid(1, { layout: "flat" });
+      let grid = Hexes.createGrid({ radius: 1, layout: "flat" });
 
-      const player = createEntity({
+      const player = Hexes.createEntity({
         player: true,
         health: 100,
         attack: 15,
       });
 
-      const enemy = createEntity({
+      const enemy = Hexes.createEntity({
         enemy: true,
         health: 90,
         attack: 15,
       });
 
-      const enemy2 = createEntity({
+      const enemy2 = Hexes.createEntity({
         enemy: true,
         health: 80,
         attack: 15,
       });
 
-      const potion = createEntity({
+      const potion = Hexes.createEntity({
         potion: true,
         healAmount: 25,
       });
 
-      grid = setCellData(grid, { x: -1, y: 0, z: 1 }, player, potion);
-      grid = setCellData(grid, { x: 1, y: 0, z: -1 }, enemy);
-      grid = setCellData(grid, { x: 0, y: 0, z: 0 }, enemy2);
+      grid = Hexes.setCellData(grid, { x: -1, y: 0, z: 1 }, player, potion);
+      grid = Hexes.setCellData(grid, { x: 1, y: 0, z: -1 }, enemy);
+      grid = Hexes.setCellData(grid, { x: 0, y: 0, z: 0 }, enemy2);
 
-      const enemyEnts = query(grid, "health").filter((ent) => {
+      const enemyEnts = Hexes.query(grid, "health").filter((ent) => {
         const [cell, entity] = ent;
 
         if (entity.health < 100) {
@@ -55,13 +45,13 @@
       });
 
       function move(grid, ent, destination) {
-        const [cell, entity] = query(grid, "id").filter(
+        const [cell, entity] = Hexes.query(grid, "id").filter(
           (e) => e[1].id === ent.id
         )[0];
         const unitCoord = cell.coord;
-        const removedUnitGrid = removeCellData(grid, unitCoord, entity);
+        const removedUnitGrid = Hexes.removeCellData(grid, unitCoord, entity);
 
-        return setCellData(removedUnitGrid, destination, entity);
+        return Hexes.setCellData(removedUnitGrid, destination, entity);
       }
 
       grid = move(grid, player, { x: 0, y: -1, z: 1 });
