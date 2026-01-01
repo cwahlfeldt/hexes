@@ -1,178 +1,121 @@
 /**
- * ECS-style query system for hex grid entities
- * Allows querying entities by type, id, components, or custom predicates
+ * ECS-style example for hex grid entities
+ * Entities have components (properties) and we query by component names
  */
 
-/**
- * Get all entities from the grid
- * @param {Object} grid - The hex grid
- * @returns {Array} Array of all entities with their current state
- */
-export function getAllEntities(grid) {
-  const entities = [];
+import {
+  createGrid,
+  setCellData,
+  query,
+  offsetToCube,
+} from "../src/index.js";
 
-  for (const coordKey in grid) {
-    const cell = grid[coordKey];
-    for (const entityId in cell) {
-      entities.push(cell[entityId]);
-    }
-  }
+// Create a grid
+let grid = createGrid(10, 10);
 
-  return entities;
-}
+// Helper to get cube coords from col/row
+const coord = (col, row) => offsetToCube({ col, row }, "pointy");
 
-/**
- * Find an entity by its ID
- * @param {Object} grid - The hex grid
- * @param {string} entityId - The entity ID to search for
- * @returns {Object|null} The entity if found, null otherwise
- */
-export function getEntityById(grid, entityId) {
-  for (const coordKey in grid) {
-    const cell = grid[coordKey];
-    if (cell[entityId]) {
-      return cell[entityId];
-    }
-  }
-  return null;
-}
+// Add a player entity with components
+grid = setCellData(grid, coord(0, 0), {
+  player: true,           // tag component
+  health: 100,
+  attack: 15,
+  inventory: [],
+});
 
-/**
- * Find the first entity matching a type
- * @param {Object} grid - The hex grid
- * @param {string} type - The entity type (e.g., "player", "enemy", "item")
- * @returns {Object|null} The first matching entity if found, null otherwise
- */
-export function getEntityByType(grid, type) {
-  for (const coordKey in grid) {
-    const cell = grid[coordKey];
-    for (const entityId in cell) {
-      if (cell[entityId].type === type) {
-        return cell[entityId];
-      }
-    }
-  }
-  return null;
-}
+// Add enemies with components
+grid = setCellData(grid, coord(2, 1), {
+  enemy: true,
+  health: 50,
+  attack: 10,
+  ai: { behavior: "aggressive" },
+});
 
-/**
- * Find all entities matching a type
- * @param {Object} grid - The hex grid
- * @param {string} type - The entity type (e.g., "player", "enemy", "item")
- * @returns {Array} Array of all matching entities
- */
-export function getEntitiesByType(grid, type) {
-  const entities = [];
+grid = setCellData(grid, coord(3, 2), {
+  enemy: true,
+  health: 75,
+  attack: 12,
+  ai: { behavior: "patrol" },
+});
 
-  for (const coordKey in grid) {
-    const cell = grid[coordKey];
-    for (const entityId in cell) {
-      if (cell[entityId].type === type) {
-        entities.push(cell[entityId]);
-      }
-    }
-  }
+// Add items with components
+grid = setCellData(grid, coord(1, 0), {
+  item: true,
+  pickup: true,
+  potion: { healAmount: 25 },
+});
 
-  return entities;
-}
+grid = setCellData(grid, coord(4, 3), {
+  item: true,
+  pickup: true,
+  weapon: { damage: 20 },
+});
 
-/**
- * Query entities with a custom predicate function
- * @param {Object} grid - The hex grid
- * @param {Function} predicate - Function that returns true for matching entities
- * @returns {Array} Array of all matching entities
- */
-export function queryEntities(grid, predicate) {
-  const entities = [];
+// ============================================
+// Query Examples
+// ============================================
 
-  for (const coordKey in grid) {
-    const cell = grid[coordKey];
-    for (const entityId in cell) {
-      const entity = cell[entityId];
-      if (predicate(entity)) {
-        entities.push(entity);
-      }
-    }
-  }
+// Find all cells with player entities
+const players = query(grid, "player");
+console.log("Players:", players.length); // 1
 
-  return entities;
-}
+// Find all cells with enemy entities
+const enemies = query(grid, "enemy");
+console.log("Enemies:", enemies.length); // 2
 
-/**
- * Query entities by component (entities that have a specific property)
- * @param {Object} grid - The hex grid
- * @param {string} componentName - The component/property name to check for
- * @returns {Array} Array of entities that have the component
- */
-export function getEntitiesWithComponent(grid, componentName) {
-  return queryEntities(grid, entity => componentName in entity);
-}
+// Find all cells with items
+const items = query(grid, "item");
+console.log("Items:", items.length); // 2
 
-/**
- * Query entities by multiple components
- * @param {Object} grid - The hex grid
- * @param {Array<string>} componentNames - Array of component names
- * @returns {Array} Array of entities that have all the specified components
- */
-export function getEntitiesWithComponents(grid, componentNames) {
-  return queryEntities(grid, entity =>
-    componentNames.every(comp => comp in entity)
-  );
-}
+// Find all entities with health (combatants)
+const combatants = query(grid, "health");
+console.log("Combatants:", combatants.length); // 3
 
-/**
- * Move an entity and return the updated entity reference
- * @param {Object} grid - The hex grid
- * @param {Object} entity - The entity to move
- * @param {Object} destination - The destination coordinate {x, y, z}
- * @param {Function} setCellData - Function to set cell data
- * @returns {Object} Object containing the new grid and updated entity
- */
-export function moveEntity(grid, entity, destination, setCellData) {
-  const unitCoord = entity.coord;
-  const removedUnitGrid = setCellData(grid, unitCoord, {});
+// Find all entities with health AND attack components
+const fighters = query(grid, "health", "attack");
+console.log("Fighters:", fighters.length); // 3
 
-  const updatedEntity = {
-    ...entity,
-    coord: destination,
-  };
+// Find all pickupable items
+const pickups = query(grid, "pickup");
+console.log("Pickups:", pickups.length); // 2
 
-  const newGrid = setCellData(removedUnitGrid, destination, {
-    [entity.id]: updatedEntity,
+// Find enemies with AI
+const aiEnemies = query(grid, "enemy", "ai");
+console.log("AI Enemies:", aiEnemies.length); // 2
+
+// Find potions specifically
+const potions = query(grid, "potion");
+console.log("Potions:", potions.length); // 1
+
+// Find weapons
+const weapons = query(grid, "weapon");
+console.log("Weapons:", weapons.length); // 1
+
+// ============================================
+// Working with query results
+// ============================================
+
+// Get player data
+const playerCell = players[0];
+console.log("Player health:", playerCell.data.health); // 100
+console.log("Player coord:", playerCell.coord); // { x: 0, y: 0, z: 0 }
+
+// Iterate over enemies
+enemies.forEach((cell) => {
+  console.log(`Enemy at ${cell.coord.x},${cell.coord.z} has ${cell.data.health} HP`);
+});
+
+// Damage all enemies
+enemies.forEach((cell) => {
+  grid = setCellData(grid, cell.coord, {
+    ...cell.data,
+    health: cell.data.health - 10,
   });
+});
 
-  return {
-    grid: newGrid,
-    entity: updatedEntity
-  };
-}
-
-/**
- * Update an entity's properties
- * @param {Object} grid - The hex grid
- * @param {string} entityId - The entity ID
- * @param {Object} updates - Properties to update
- * @param {Function} setCellData - Function to set cell data
- * @returns {Object} Object containing the new grid and updated entity
- */
-export function updateEntity(grid, entityId, updates, setCellData) {
-  const entity = getEntityById(grid, entityId);
-  if (!entity) {
-    return { grid, entity: null };
-  }
-
-  const updatedEntity = {
-    ...entity,
-    ...updates,
-    coord: entity.coord, // Preserve coordinate
-  };
-
-  const newGrid = setCellData(grid, entity.coord, {
-    [entity.id]: updatedEntity,
-  });
-
-  return {
-    grid: newGrid,
-    entity: updatedEntity
-  };
-}
+// Query again to see updated health
+const updatedEnemies = query(grid, "enemy");
+updatedEnemies.forEach((cell) => {
+  console.log(`Enemy now has ${cell.data.health} HP`);
+});

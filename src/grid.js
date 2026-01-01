@@ -112,23 +112,38 @@ export function updateCell(grid, coord, updater) {
   return setCell(grid, coord, newCell);
 }
 
-// Update a cell using an updater function (immutable)
-export function setCellData(grid, coord, data) {
+// Update a cell's data (immutable)
+// Accepts either an object with entities or spread entities as arguments
+// Entities with an `id` property are automatically keyed by their id
+export function setCellData(grid, coord, ...entities) {
   const cell = getCell(grid, coord);
 
   if (!cell) return grid;
 
-  if (data === undefined) {
-    console.warn("setCellData: data cannot be undefined");
+  if (entities.length === 0) {
+    console.warn("setCellData: no data provided");
     return grid;
   }
 
-  if (data === null) {
-    console.warn("setCellData: data cannot be null");
-    return grid;
+  // Build the new data object
+  const newData = { ...cell.data };
+
+  for (const entity of entities) {
+    if (entity === undefined || entity === null) {
+      console.warn("setCellData: entity cannot be undefined or null");
+      continue;
+    }
+
+    // If entity has an id, use it as the key
+    if (entity.id) {
+      newData[entity.id] = entity;
+    } else {
+      // Otherwise merge the object directly (for backwards compatibility)
+      Object.assign(newData, entity);
+    }
   }
 
-  return setCell(grid, coord, { ...cell, data });
+  return setCell(grid, coord, { ...cell, data: newData });
 }
 
 // Remove a cell from the grid (immutable)

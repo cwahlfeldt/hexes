@@ -52,3 +52,9 @@ export { getLine, hasLineOfSight, getVisibleCells } from "./line.js";
 
 // Pathfinding
 export { findPath, getPathCost, getPathLength } from "./pathfinding.js";
+
+// Entity queries
+export { query, hasComponents } from "./query.js";
+
+// Entity system
+export { create, createEntities, entities, resetIds } from "./entities.js";

@@ -9,46 +9,53 @@
         createHexGrid,
         setPassable,
         setCell,
-        setCellData,
         findPath,
         getNeighbors,
+        setCellData,
+        query,
+        createEntities,
       } from "../src/index.js";
 
       let grid = createHexGrid(1, { layout: "flat" });
 
-      const units = {
-        player: {
-          id: "player",
-          health: 3,
-          coord: { x: 0, y: 0, z: 0 },
-        },
-        enemy: {
-          id: "enemy",
-          health: 1,
-          coord: { x: 1, y: 0, z: -1 },
-        },
-      };
+      const entities = createEntities();
 
-      grid = setCellData(grid, units.player.coord, {
-        [units.player.id]: units.player,
+      const player = entities.create({
+        player: true,
+        health: 100,
+        attack: 15,
       });
 
-      function move(grid, unit, destination) {
-        const unitCoord = unit.coord;
-        const removedUnitGrid = setCellData(grid, unitCoord, {});
+      const enemy = entities.create({
+        enemy: true,
+        health: 90,
+        attack: 15,
+      });
 
-        return setCellData(removedUnitGrid, destination, {
-          [unit.id]: {
-            ...unit,
-            coord: destination,
-          },
-        });
-      }
+      const enemy2 = entities.create({
+        enemy: true,
+        health: 80,
+        attack: 15,
+      });
 
-      grid = move(grid, units.player, { x: 1, y: 0, z: -1 });
-      grid = move(grid, units.player, { x: -1, y: 0, z: 1 });
+      const potion = entities.create({
+        potion: true,
+        healAmount: 25,
+      });
 
-      console.log(grid);
+      grid = setCellData(grid, { x: -1, y: 0, z: 1 }, player, potion);
+      grid = setCellData(grid, { x: 1, y: 0, z: -1 }, enemy);
+      grid = setCellData(grid, { x: 0, y: 0, z: 0 }, enemy2);
+
+      const enemyEnts = query(grid, "health").filter((ent) => {
+        const [cell, entity] = ent;
+
+        if (entity.health < 100) {
+          return entity;
+        }
+      });
+
+      console.log(enemyEnt);
 
       const gridForDisplay = {
         ...grid,

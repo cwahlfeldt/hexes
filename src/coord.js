@@ -8,7 +8,7 @@ const DIRECTIONS = [
   { x: 0, y: 1, z: -1 },
   { x: -1, y: 1, z: 0 },
   { x: -1, y: 0, z: 1 },
-  { x: 0, y: -1, z: 1 }
+  { x: 0, y: -1, z: 1 },
 ];
 
 // Coordinate math operations
@@ -46,7 +46,7 @@ export function hash(coord) {
 
 // Convert string key back to coordinate
 export function unhash(key) {
-  const [x, y, z] = key.split(',').map(Number);
+  const [x, y, z] = key.split(",").map(Number);
   return { x, y, z };
 }
 
@@ -60,7 +60,7 @@ export function lerp(a, b, t) {
   return {
     x: a.x + (b.x - a.x) * t,
     y: a.y + (b.y - a.y) * t,
-    z: a.z + (b.z - a.z) * t
+    z: a.z + (b.z - a.z) * t,
   };
 }
 
@@ -90,37 +90,37 @@ export function cubeToPixel(coord, layout, hexSize) {
   const x = coord.x;
   const z = coord.z;
 
-  if (layout === 'pointy') {
+  if (layout === "pointy") {
     return {
-      x: hexSize * (Math.sqrt(3) * x + Math.sqrt(3) / 2 * z),
-      y: hexSize * (3 / 2 * z)
+      x: hexSize * (Math.sqrt(3) * x + (Math.sqrt(3) / 2) * z),
+      y: hexSize * ((3 / 2) * z),
     };
   } else {
     // flat layout
     return {
-      x: hexSize * (3 / 2 * x),
-      y: hexSize * (Math.sqrt(3) / 2 * x + Math.sqrt(3) * z)
+      x: hexSize * ((3 / 2) * x),
+      y: hexSize * ((Math.sqrt(3) / 2) * x + Math.sqrt(3) * z),
     };
   }
 }
 
 // Coordinate conversion: Pixel to Cube
 export function pixelToCube(pixel, layout, hexSize) {
-  if (layout === 'pointy') {
-    const q = (Math.sqrt(3) / 3 * pixel.x - 1 / 3 * pixel.y) / hexSize;
-    const r = (2 / 3 * pixel.y) / hexSize;
+  if (layout === "pointy") {
+    const q = ((Math.sqrt(3) / 3) * pixel.x - (1 / 3) * pixel.y) / hexSize;
+    const r = ((2 / 3) * pixel.y) / hexSize;
     return round({ x: q, y: -q - r, z: r });
   } else {
     // flat layout
-    const q = (2 / 3 * pixel.x) / hexSize;
-    const r = (-1 / 3 * pixel.x + Math.sqrt(3) / 3 * pixel.y) / hexSize;
+    const q = ((2 / 3) * pixel.x) / hexSize;
+    const r = ((-1 / 3) * pixel.x + (Math.sqrt(3) / 3) * pixel.y) / hexSize;
     return round({ x: q, y: -q - r, z: r });
   }
 }
 
 // Coordinate conversion: Cube to Offset
 export function cubeToOffset(coord, layout) {
-  if (layout === 'pointy') {
+  if (layout === "pointy") {
     // odd-r offset
     const col = coord.x + (coord.z - (coord.z & 1)) / 2;
     const row = coord.z;
@@ -135,7 +135,7 @@ export function cubeToOffset(coord, layout) {
 
 // Coordinate conversion: Offset to Cube
 export function offsetToCube(offset, layout) {
-  if (layout === 'pointy') {
+  if (layout === "pointy") {
     // odd-r offset
     const x = offset.col - (offset.row - (offset.row & 1)) / 2;
     const z = offset.row;
@@ -149,3 +149,5 @@ export function offsetToCube(offset, layout) {
     return { x, y, z };
   }
 }
+
+// export const coord = (col, row,) => offsetToCube({ col, row }, layout);
