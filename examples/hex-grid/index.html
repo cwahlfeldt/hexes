@@ -28,43 +28,14 @@
         font-size: 24px;
       }
 
-      .controls {
+      .instructions {
         background: #2a2a2a;
         padding: 15px 20px;
         border-radius: 8px;
         margin-bottom: 20px;
         text-align: center;
-      }
-
-      .controls p {
-        margin: 5px 0;
         font-size: 14px;
         color: #aaa;
-      }
-
-      .key-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 40px);
-        gap: 5px;
-        margin: 10px auto 0;
-        width: fit-content;
-      }
-
-      .key {
-        background: #333;
-        border: 2px solid #555;
-        border-radius: 4px;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 16px;
-      }
-
-      .key.empty {
-        visibility: hidden;
       }
 
       canvas {
@@ -84,26 +55,14 @@
   <body>
     <h1>Hex Grid Example</h1>
 
-    <div class="controls">
-      <p>Use keyboard to move the player:</p>
-      <div class="key-grid">
-        <div class="key">Q</div>
-        <div class="key">W</div>
-        <div class="key">E</div>
-        <div class="key">A</div>
-        <div class="key">S</div>
-        <div class="key">D</div>
-      </div>
+    <div class="instructions">
+      Click on any hex tile to move the player
     </div>
 
     <canvas id="canvas" width="600" height="600"></canvas>
 
-    <div class="info">
-      Click on a hex to see its coordinates
-    </div>
-
     <script type="module">
-      import { initGame, movePlayerByKey } from "./game.js";
+      import { initGame, moveEntity } from "./game.js";
       import { createRenderer } from "./renderer.js";
 
       // Initialize game
@@ -119,30 +78,25 @@
       // Initial render
       renderer.render(gameState.grid);
 
-      // Handle keyboard input
-      document.addEventListener("keydown", (e) => {
-        const key = e.key.toLowerCase();
-
-        // Check if it's a valid movement key
-        if (["w", "a", "s", "d", "q", "e"].includes(key)) {
-          e.preventDefault();
-
-          // Move the player
-          gameState = movePlayerByKey(gameState, key);
-
-          // Re-render
-          renderer.render(gameState.grid);
-        }
-      });
-
-      // Handle canvas clicks (show coordinates)
+      // Handle canvas clicks to move player
       canvas.addEventListener("click", (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
+        // Convert pixel position to hex coordinate
         const coord = renderer.pixelToCoord(x, y);
-        console.log("Clicked hex coordinate:", coord);
+
+        // Move the player to the clicked hex
+        const newGrid = moveEntity(gameState.grid, gameState.player, coord);
+
+        // Update game state and re-render
+        gameState = {
+          ...gameState,
+          grid: newGrid,
+        };
+
+        renderer.render(gameState.grid);
       });
     </script>
   </body>
