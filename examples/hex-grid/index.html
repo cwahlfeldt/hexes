@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hex Grid Example - Movable Entity</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #1a1a1a;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 24px;
+      }
+
+      .controls {
+        background: #2a2a2a;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .controls p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #aaa;
+      }
+
+      .key-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 40px);
+        gap: 5px;
+        margin: 10px auto 0;
+        width: fit-content;
+      }
+
+      .key {
+        background: #333;
+        border: 2px solid #555;
+        border-radius: 4px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .key.empty {
+        visibility: hidden;
+      }
+
+      canvas {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+      }
+
+      .info {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hex Grid Example</h1>
+
+    <div class="controls">
+      <p>Use keyboard to move the player:</p>
+      <div class="key-grid">
+        <div class="key">Q</div>
+        <div class="key">W</div>
+        <div class="key">E</div>
+        <div class="key">A</div>
+        <div class="key">S</div>
+        <div class="key">D</div>
+      </div>
+    </div>
+
+    <canvas id="canvas" width="600" height="600"></canvas>
+
+    <div class="info">
+      Click on a hex to see its coordinates
+    </div>
+
+    <script type="module">
+      import { initGame, movePlayerByKey } from "./game.js";
+      import { createRenderer } from "./renderer.js";
+
+      // Initialize game
+      let gameState = initGame();
+
+      // Setup canvas and renderer
+      const canvas = document.getElementById("canvas");
+      const renderer = createRenderer(canvas, {
+        hexSize: 30,
+        layout: "pointy",
+      });
+
+      // Initial render
+      renderer.render(gameState.grid);
+
+      // Handle keyboard input
+      document.addEventListener("keydown", (e) => {
+        const key = e.key.toLowerCase();
+
+        // Check if it's a valid movement key
+        if (["w", "a", "s", "d", "q", "e"].includes(key)) {
+          e.preventDefault();
+
+          // Move the player
+          gameState = movePlayerByKey(gameState, key);
+
+          // Re-render
+          renderer.render(gameState.grid);
+        }
+      });
+
+      // Handle canvas clicks (show coordinates)
+      canvas.addEventListener("click", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const coord = renderer.pixelToCoord(x, y);
+        console.log("Clicked hex coordinate:", coord);
+      });
+    </script>
+  </body>
+</html>
