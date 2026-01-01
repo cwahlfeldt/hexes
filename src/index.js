@@ -58,4 +58,4 @@ export { findPath, getPathCost, getPathLength } from "./pathfinding.js";
 export { query, hasComponents } from "./query.js";
 
 // Entity system
-export { create, createEntities, entities, resetIds } from "./entities.js";
+export { createEntity, resetIds } from "./entities.js";

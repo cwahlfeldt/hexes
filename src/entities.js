@@ -11,14 +11,14 @@ let nextId = 0;
  * @returns {Object} Entity object with id and components
  *
  * @example
- * const player = entities.create({
+ * const player = createEntity({
  *   player: true,
  *   health: 100,
  *   attack: 15,
  * });
  * // Returns: { id: "entity-0", player: true, health: 100, attack: 15 }
  */
-export function create(components = {}) {
+export function createEntity(components = {}) {
   const id = `entity-${nextId++}`;
   return {
     id,
@@ -32,27 +32,3 @@ export function create(components = {}) {
 export function resetIds() {
   nextId = 0;
 }
-
-/**
- * Create an entities manager object
- * @returns {Object} Entities manager with create method
- */
-export function createEntities() {
-  let localNextId = 0;
-
-  return {
-    create(components = {}) {
-      const id = `entity-${localNextId++}`;
-      return {
-        id,
-        ...components,
-      };
-    },
-    resetIds() {
-      localNextId = 0;
-    },
-  };
-}
-
-// Default entities instance
-export const entities = createEntities();

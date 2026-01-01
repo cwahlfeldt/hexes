@@ -13,33 +13,31 @@
         getNeighbors,
         setCellData,
         query,
-        createEntities,
+        createEntity,
         removeCellData,
       } from "../src/index.js";
 
       let grid = createHexGrid(1, { layout: "flat" });
 
-      const entities = createEntities();
-
-      const player = entities.create({
+      const player = createEntity({
         player: true,
         health: 100,
         attack: 15,
       });
 
-      const enemy = entities.create({
+      const enemy = createEntity({
         enemy: true,
         health: 90,
         attack: 15,
       });
 
-      const enemy2 = entities.create({
+      const enemy2 = createEntity({
         enemy: true,
         health: 80,
         attack: 15,
       });
 
-      const potion = entities.create({
+      const potion = createEntity({
         potion: true,
         healAmount: 25,
       });

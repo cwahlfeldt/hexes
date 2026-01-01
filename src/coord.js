@@ -149,5 +149,3 @@ export function offsetToCube(offset, layout) {
     return { x, y, z };
   }
 }
-
-// export const coord = (col, row,) => offsetToCube({ col, row }, layout);
