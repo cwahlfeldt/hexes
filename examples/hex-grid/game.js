@@ -11,9 +11,9 @@ import Hexes from "../../src/index.js";
 export function initGame() {
   // Create a hex-shaped grid with radius 3
   let grid = Hexes.createGrid({
-    type: 'hex',
-    radius: 3,
-    layout: "pointy"
+    type: "hex",
+    radius: 4,
+    layout: "flat",
   });
 
   // Create a player entity at the center
@@ -39,9 +39,7 @@ export function initGame() {
  * @returns {Object|null} The coordinate of the entity or null
  */
 export function findEntityPosition(grid, entity) {
-  const results = Hexes.query(grid, "id").filter(
-    (e) => e[1].id === entity.id
-  );
+  const results = Hexes.query(grid, "id").filter((e) => e[1].id === entity.id);
 
   if (results.length > 0) {
     return results[0][0].coord;
@@ -96,12 +94,12 @@ export function movePlayerByKey(gameState, direction) {
   // Map keyboard keys to hex directions
   // Using cube coordinate directions
   const directionMap = {
-    'w': { x: 0, y: -1, z: 1 },   // North
-    's': { x: 0, y: 1, z: -1 },   // South
-    'q': { x: -1, y: 0, z: 1 },   // Northwest
-    'e': { x: 1, y: -1, z: 0 },   // Northeast
-    'a': { x: -1, y: 1, z: 0 },   // Southwest
-    'd': { x: 1, y: 0, z: -1 },   // Southeast
+    w: { x: 0, y: -1, z: 1 }, // North
+    s: { x: 0, y: 1, z: -1 }, // South
+    q: { x: -1, y: 0, z: 1 }, // Northwest
+    e: { x: 1, y: -1, z: 0 }, // Northeast
+    a: { x: -1, y: 1, z: 0 }, // Southwest
+    d: { x: 1, y: 0, z: -1 }, // Southeast
   };
 
   const dir = directionMap[direction.toLowerCase()];

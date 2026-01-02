@@ -12,7 +12,8 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
         background: #1a1a1a;
         color: #fff;
         display: flex;
@@ -55,9 +56,7 @@
   <body>
     <h1>Hex Grid Example</h1>
 
-    <div class="instructions">
-      Click on any hex tile to move the player
-    </div>
+    <div class="instructions">Click on any hex tile to move the player</div>
 
     <canvas id="canvas" width="600" height="600"></canvas>
 
@@ -71,8 +70,8 @@
       // Setup canvas and renderer
       const canvas = document.getElementById("canvas");
       const renderer = createRenderer(canvas, {
-        hexSize: 30,
-        layout: "pointy",
+        hexSize: 32,
+        layout: "flat",
       });
 
       // Initial render
