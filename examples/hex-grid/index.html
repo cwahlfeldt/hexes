@@ -61,41 +61,37 @@
     <canvas id="canvas" width="600" height="600"></canvas>
 
     <script type="module">
-      import { initGame, moveEntity } from "./game.js";
+      import { initGame } from "./game.js";
       import { createRenderer } from "./renderer.js";
+      import { createStore } from "./store.js";
+      import { gameReducer } from "./reducer.js";
 
-      // Initialize game
-      let gameState = initGame();
+      // Initialize store with game state
+      const store = createStore(gameReducer, initGame());
 
       // Setup canvas and renderer
       const canvas = document.getElementById("canvas");
       const renderer = createRenderer(canvas, {
         hexSize: 32,
-        layout: "flat",
+        layout: store.getState().grid.layout,
       });
 
-      // Initial render
-      renderer.render(gameState.grid);
+      // Subscribe renderer to state changes
+      store.subscribe((state) => renderer.render(state.grid));
 
-      // Handle canvas clicks to move player
+      // Initial render
+      renderer.render(store.getState().grid);
+
+      // Handle canvas clicks
       canvas.addEventListener("click", (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Convert pixel position to hex coordinate
         const coord = renderer.pixelToCoord(x, y);
 
-        // Move the player to the clicked hex
-        const newGrid = moveEntity(gameState.grid, gameState.player, coord);
-
-        // Update game state and re-render
-        gameState = {
-          ...gameState,
-          grid: newGrid,
-        };
-
-        renderer.render(gameState.grid);
+        store.dispatch({ type: "SELECT_CELL", coord });
+        store.dispatch({ type: "TICK" });
       });
     </script>
   </body>

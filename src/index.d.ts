@@ -110,6 +110,7 @@ export function getCell(grid: Grid, coord: CubeCoord): Cell | null;
 export function setCell(grid: Grid, coord: CubeCoord, cell: Cell): Grid;
 export function setCellData(grid: Grid, coord: CubeCoord, ...entities: Entity[]): Grid;
 export function removeCellData(grid: Grid, coord: CubeCoord, ...entities: (Entity | string)[]): Grid;
+export function moveCellData(grid: Grid, fromCoord: CubeCoord, toCoord: CubeCoord, ...entities: (Entity | string)[]): Grid;
 export function updateCell(grid: Grid, coord: CubeCoord, updater: (cell: Cell) => Cell): Grid;
 export function removeCell(grid: Grid, coord: CubeCoord): Grid;
 export function setPassable(grid: Grid, coord: CubeCoord, passable: boolean): Grid;
@@ -170,6 +171,7 @@ interface HexesNamespace {
   setCell: typeof setCell;
   setCellData: typeof setCellData;
   removeCellData: typeof removeCellData;
+  moveCellData: typeof moveCellData;
   updateCell: typeof updateCell;
   removeCell: typeof removeCell;
   setPassable: typeof setPassable;

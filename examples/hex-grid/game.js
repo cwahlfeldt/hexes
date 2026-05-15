@@ -2,7 +2,7 @@
  * Game logic for hex grid example
  * Handles grid state and entity movement
  */
-import Hexes from "../../src/index.js";
+import Hexes, { isPassable } from "../../src/index.js";
 
 /**
  * Initialize the game state
@@ -16,18 +16,45 @@ export function initGame() {
     layout: "flat",
   });
 
+  // add hex entity to all passable cells
+  grid.cells.forEach((cell) => {
+    if (!cell.passable) return;
+
+    const hex = Hexes.createEntity({
+      type: "hex",
+      hex: true,
+      passable: true,
+      fillColor: "#f0f0f0",
+    });
+
+    grid = Hexes.setCellData(grid, cell.coord, hex);
+  });
+
   // Create a player entity at the center
   const player = Hexes.createEntity({
-    type: "player",
+    player: true,
+    health: 3,
+    moveRange: 1,
+    attackDamage: 1,
+    attackRange: 1,
     color: "#4CAF50",
+  });
+
+  const enemy = Hexes.createEntity({
+    health: 3,
+    enemy: true,
+    moveRange: 1,
+    attackDamage: 1,
+    attackRange: 1,
+    color: "red",
   });
 
   // Place player at center of grid
   grid = Hexes.setCellData(grid, { x: 0, y: 0, z: 0 }, player);
+  grid = Hexes.setCellData(grid, { x: 3, y: 0, z: -3 }, enemy);
 
   return {
     grid,
-    player,
     selectedCell: null,
   };
 }
@@ -75,48 +102,6 @@ export function moveEntity(grid, entity, destination) {
   newGrid = Hexes.setCellData(newGrid, destination, entity);
 
   return newGrid;
-}
-
-/**
- * Move player in a direction using keyboard input
- * @param {Object} gameState - Current game state
- * @param {string} direction - Direction to move ('w', 'a', 's', 'd', 'q', 'e')
- * @returns {Object} Updated game state
- */
-export function movePlayerByKey(gameState, direction) {
-  const { grid, player } = gameState;
-  const currentPos = findEntityPosition(grid, player);
-
-  if (!currentPos) {
-    return gameState;
-  }
-
-  // Map keyboard keys to hex directions
-  // Using cube coordinate directions
-  const directionMap = {
-    w: { x: 0, y: -1, z: 1 }, // North
-    s: { x: 0, y: 1, z: -1 }, // South
-    q: { x: -1, y: 0, z: 1 }, // Northwest
-    e: { x: 1, y: -1, z: 0 }, // Northeast
-    a: { x: -1, y: 1, z: 0 }, // Southwest
-    d: { x: 1, y: 0, z: -1 }, // Southeast
-  };
-
-  const dir = directionMap[direction.toLowerCase()];
-  if (!dir) {
-    return gameState;
-  }
-
-  // Calculate new position
-  const newPos = Hexes.add(currentPos, dir);
-
-  // Move the player
-  const newGrid = moveEntity(grid, player, newPos);
-
-  return {
-    ...gameState,
-    grid: newGrid,
-  };
 }
 
 /**

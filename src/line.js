@@ -38,12 +38,25 @@ export function hasLineOfSight(grid, coordA, coordB) {
 export function getVisibleCells(grid, origin, maxRange = Infinity) {
   const visible = [];
 
-  for (const [key, cell] of grid.cells) {
-    const dist = distance(origin, cell.coord);
-    if (dist > maxRange) continue;
-
-    if (hasLineOfSight(grid, origin, cell.coord)) {
-      visible.push(cell.coord);
+  // If maxRange is finite, only check cells within range instead of scanning entire grid
+  if (maxRange !== Infinity) {
+    for (let dx = -maxRange; dx <= maxRange; dx++) {
+      const minDy = Math.max(-maxRange, -dx - maxRange);
+      const maxDy = Math.min(maxRange, -dx + maxRange);
+      for (let dy = minDy; dy <= maxDy; dy++) {
+        const dz = -dx - dy;
+        const target = { x: origin.x + dx, y: origin.y + dy, z: origin.z + dz };
+        if (hasCell(grid, target) && hasLineOfSight(grid, origin, target)) {
+          visible.push(target);
+        }
+      }
+    }
+  } else {
+    // No range limit - must scan all cells
+    for (const [key, cell] of grid.cells) {
+      if (hasLineOfSight(grid, origin, cell.coord)) {
+        visible.push(cell.coord);
+      }
     }
   }
 

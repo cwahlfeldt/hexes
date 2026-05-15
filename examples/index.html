@@ -44,18 +44,8 @@
         }
       });
 
-      function move(grid, ent, destination) {
-        const [cell, entity] = Hexes.query(grid, "id").filter(
-          (e) => e[1].id === ent.id
-        )[0];
-        const unitCoord = cell.coord;
-        const removedUnitGrid = Hexes.removeCellData(grid, unitCoord, entity);
-
-        return Hexes.setCellData(removedUnitGrid, destination, entity);
-      }
-
-      grid = move(grid, player, { x: 0, y: -1, z: 1 });
-      grid = move(grid, enemy2, { x: 0, y: 0, z: 0 });
+      grid = Hexes.moveCellData(grid, player, { x: 0, y: -1, z: 1 });
+      grid = Hexes.moveCellData(grid, enemy2, { x: 0, y: 0, z: 0 });
 
       const gridForDisplay = {
         ...grid,

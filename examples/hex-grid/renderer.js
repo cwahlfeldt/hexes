@@ -79,14 +79,18 @@ export function createRenderer(canvas, options = {}) {
   function render(grid) {
     clear();
 
+    const cells = Hexes.query(grid, "hex");
+
     // Draw all cells
-    for (const cell of grid.cells.values()) {
+    for (const [cell, entity] of cells) {
       const pixel = Hexes.cubeToPixel(cell.coord, layout, hexSize);
       const x = pixel.x + offsetX;
       const y = pixel.y + offsetY;
 
+      console.log(cell);
+
       // Draw hexagon
-      drawHexagon(x, y);
+      drawHexagon(x, y, entity.fillColor);
 
       // Draw entities in this cell
       const entities = Object.values(cell.data);

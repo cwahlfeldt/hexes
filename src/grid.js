@@ -20,11 +20,7 @@ import { hash, unhash, offsetToCube } from "./coord.js";
  * @param {Object} options.bounds - { minX, maxX, minY, maxY } bounds to iterate over
  */
 export function createGrid(options = {}) {
-  const {
-    type = "hex",
-    layout = "pointy",
-    defaultData = {},
-  } = options;
+  const { type = "hex", layout = "pointy", defaultData = {} } = options;
 
   const cells = new Map();
 
@@ -56,7 +52,9 @@ export function createGrid(options = {}) {
     const { predicate, bounds } = options;
 
     if (!predicate || !bounds) {
-      throw new Error("createGrid: 'custom' type requires predicate and bounds");
+      throw new Error(
+        "createGrid: 'custom' type requires predicate and bounds"
+      );
     }
 
     const { minX, maxX, minY, maxY } = bounds;
@@ -184,6 +182,32 @@ export function removeCellData(grid, coord, ...entities) {
   }
 
   return setCell(grid, coord, { ...cell, data: newData });
+}
+
+// Move entities from one cell to another (immutable)
+export function moveCellData(grid, fromCoord, toCoord, ...entities) {
+  const fromCell = getCell(grid, fromCoord);
+  const toCell = getCell(grid, toCoord);
+
+  if (!fromCell || !toCell) return grid;
+
+  if (entities.length === 0) {
+    console.warn("moveCellData: no entities provided");
+    return grid;
+  }
+
+  // Remove from source cell
+  let newGrid = removeCellData(grid, fromCoord, ...entities);
+
+  // Add to destination cell - get the actual entities from the original cell
+  const entitiesToMove = entities
+    .map((entity) => {
+      const id = typeof entity === "string" ? entity : entity?.id;
+      return fromCell.data[id];
+    })
+    .filter(Boolean);
+
+  return setCellData(newGrid, toCoord, ...entitiesToMove);
 }
 
 // Remove a cell from the grid (immutable)

@@ -1,23 +1,58 @@
 import { distance, hash, equals } from './coord.js';
 import { getNeighbors } from './neighbors.js';
 
-// Priority Queue implementation using min-heap
+// Priority Queue implementation using binary min-heap
 class PriorityQueue {
   constructor() {
-    this.items = [];
+    this.heap = [];
   }
 
   enqueue(item, priority) {
-    this.items.push({ item, priority });
-    this.items.sort((a, b) => a.priority - b.priority);
+    this.heap.push({ item, priority });
+    this._bubbleUp(this.heap.length - 1);
   }
 
   dequeue() {
-    return this.items.shift()?.item;
+    if (this.heap.length === 0) return undefined;
+    if (this.heap.length === 1) return this.heap.pop().item;
+
+    const min = this.heap[0];
+    this.heap[0] = this.heap.pop();
+    this._bubbleDown(0);
+    return min.item;
   }
 
   isEmpty() {
-    return this.items.length === 0;
+    return this.heap.length === 0;
+  }
+
+  _bubbleUp(index) {
+    while (index > 0) {
+      const parentIndex = (index - 1) >> 1;
+      if (this.heap[parentIndex].priority <= this.heap[index].priority) break;
+      [this.heap[parentIndex], this.heap[index]] = [this.heap[index], this.heap[parentIndex]];
+      index = parentIndex;
+    }
+  }
+
+  _bubbleDown(index) {
+    const length = this.heap.length;
+    while (true) {
+      const leftChild = (index << 1) + 1;
+      const rightChild = leftChild + 1;
+      let smallest = index;
+
+      if (leftChild < length && this.heap[leftChild].priority < this.heap[smallest].priority) {
+        smallest = leftChild;
+      }
+      if (rightChild < length && this.heap[rightChild].priority < this.heap[smallest].priority) {
+        smallest = rightChild;
+      }
+      if (smallest === index) break;
+
+      [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
+      index = smallest;
+    }
   }
 }
 
@@ -87,7 +122,7 @@ function reconstructPath(cameFrom, start, end) {
   const startKey = hash(start);
 
   while (current) {
-    path.unshift(current);
+    path.push(current);
     const currentKey = hash(current);
 
     if (currentKey === startKey) {
@@ -97,6 +132,7 @@ function reconstructPath(cameFrom, start, end) {
     current = cameFrom.get(currentKey);
   }
 
+  path.reverse();
   return path;
 }
 
